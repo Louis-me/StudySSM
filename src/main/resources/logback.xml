@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--scan当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。scanPeriod 设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。debug 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。-->
+<configuration scan="true" scanPeriod="60 seconds" debug="true">
+    <!-- 模块名称， 影响日志配置名，日志文件名 -->
+    <property name="appName" value="mszluSpring"/>
+    <property name="logMaxSize" valule="100MB"/>
+    <!--rootPath 日志路径 -->
+    <property name="rootPath" value="D:/log"/>
+    <contextName>${appName}</contextName>
+
+    <!--控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss}|%t|%p| %m |%logger:%L%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--将过滤器的日志级别配置为DEBUG，所有DEBUG级别的日志交给appender处理，非DEBUG级别的日志，被过滤掉。-->
+    <appender name="DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 设置日志不超过${logMaxSize}时的保存路径-->
+        <file>${rootPath}/${appName}/debug/${appName}-dlog.log</file>
+        <!-- 滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件。-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${rootPath}/${appName}/debug/${appName}-dlog-%d{yyyy-MM-dd}-%d.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <!-- 当天的日志大小 超过${logMaxSize}时,压缩日志并保存 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 日志输出的文件的格式  -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss}|%t|%p| %m |%logger:%L%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!--过滤器 多个过滤器时，按照配置顺序执行-->
+        <!--级别过滤器 执行一个过滤器会有返回个枚举值，即DENY，NEUTRAL，ACCEPT其中之一-->
+        <!--DENY，日志将立即被抛弃不再经过其他过滤器-->
+        <!--NEUTRAL，有序列表里的下个过滤器过接着处理日志-->
+        <!--ACCEPT，日志会被立即处理，不再经过剩余过滤器。-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!--设置过滤级别-->
+            <level>DEBUG</level>
+            <!--用于配置符合过滤条件的操作-->
+            <onMatch>ACCEPT</onMatch>
+            <!--用于配置不符合过滤条件的操作-->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <!--临界值过滤器 过滤掉低于指定临界值的日志。当日志级别等于或高于临界值时，过滤器返回NEUTRAL；当日志级别低于临界值时，日志会被拒绝。-->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <!--只记录 DEBUG 级别的日志 -->
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+
+
+    <appender name="INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${rootPath}/${appName}/info/${appName}-ilog.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${rootPath}/${appName}/all/${appName}-ilog-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss}|%t|%p| %m |%logger:%L%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+
+
+    <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${rootPath}/${appName}/error/${appName}-elog.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${rootPath}/${appName}/all/${appName}-elog-%d{yyyy-MM-dd}-%e.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss}|%t|%p| %m |%logger:%L%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 用来设置某一个包或者具体的某一个类的日志打印级别、以及指定<appender> -->
+    <!--     <logger name="com.mszlu" additivity="false">   -->
+    <!--         <level value="debug" />   -->
+    <!--         <appender-ref ref="stdout" />   -->
+    <!--         <appender-ref ref="file" />   -->
+    <!--     </logger>   -->
+    <!--name用来指定受此loger约束的某一个包或者具体的某一个类-->
+    <!--level 用来设置打印日志级别，大小写无关-->
+    <!--addtivity:是否向上级loger传递打印信息。默认是true。-->
+    <!--<logger>可以包含零个或多个<appender-ref>元素，标识这个appender将会添加到这个logger-->
+    <logger name="jdbc" level="INFO"/>
+    <logger name="org" level="INFO"/>
+    <logger name="net" level="INFO"/>
+    <logger name="sql" level="INFO"/>
+    <logger name="java.sql" level="INFO"/>
+    <logger name="javax" level="INFO"/>
+
+    <!--日志的输出级别由低到高（越来问题越严重）trace->debug->info->warn->error -->
+    <!-- root将级别为DEBUG及大于DEBUG的日志信息交给已经配置好的name='STDOUT'的appender处理，将信息打印到控制台-Console -->
+    <!--root 也是logger，只不过是根logger，没有name属性，指定为root-->
+    <root level="DEBUG">
+        <!-- appender-ref标识这个appender将会添加到本应用的日志系统中 -->
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="INFO"/>
+        <appender-ref ref="DEBUG"/>
+        <appender-ref ref="ERROR"/>
+    </root>
+
+
+</configuration>
